@@ -82,7 +82,7 @@ def insert_errors(mode, bin_data_list_part):
         for index in range(0, len(index_errors_part)):
 
             amount_errors_ = random.randrange(2, amount_errors + 1)
-            index_errors = random.sample(range(0, len(bin_data_list_part[index])), amount_errors_)
+            index_errors = random.sample(range(0, len(bin_data_list_part[index_errors_part[index]])), amount_errors_)
             index_errors = list(set(index_errors))
 
             if len(index_errors) < 2:
@@ -91,6 +91,28 @@ def insert_errors(mode, bin_data_list_part):
             for index_ in index_errors:
                 #print('index', index_)
                 bin_data_list_part[index_errors_part[index]][index_] = 0 if bin_data_list_part[index_errors_part[index]][index_] == 1 else 1
+        print('Multiple errors were added into words')
+        return True, bin_data_list_part
+
+    elif mode == '3':
+        count_error_words = math.ceil(len(bin_data_list_part) * 0.25)
+        count_error_multiple_words = math.ceil(len(bin_data_list_part) * 0.4)
+        count_error_multiple3_words = math.ceil(len(bin_data_list_part) * 0.1)
+        for index in range(0, count_error_words):
+            index_ = random.randrange(0, len(bin_data_list_part[index]))
+            bin_data_list_part[index][index_] = 0 if \
+                bin_data_list_part[index][index_] == 1 else 1
+        for index in range(count_error_words, count_error_words + count_error_multiple_words):
+            index_errors = random.sample(range(0, len(bin_data_list_part[index])), 2)
+            for index_ in index_errors:
+                 bin_data_list_part[index][index_] = 0 if \
+                 bin_data_list_part[index][index_] == 1 else 1
+        for index in range(count_error_words + count_error_multiple_words, count_error_multiple3_words + count_error_words + count_error_multiple_words):
+            index_errors = random.sample(range(0, len(bin_data_list_part[index])), 3)
+            for index_ in index_errors:
+                 bin_data_list_part[index][index_] = 0 if \
+                 bin_data_list_part[index][index_] == 1 else 1
+        count_error_multiple_words += count_error_multiple3_words
         print('Multiple errors were added into words')
         return True, bin_data_list_part
     else:
@@ -104,6 +126,10 @@ try:
     bin_data_list_part = hamming(bin_data_list_part_)
     print('select sending data mode: [0] without errors, [1] single errors, [2] multiple errors')
     bin_data_list_part_for_send = []
+except Exception as e:
+    print(str(e))
+    print('Something was wrong!')
+finally:
     while True:
         mode = input()
         flag, bin_data_list_part_for_send = insert_errors(mode, bin_data_list_part)
@@ -119,8 +145,7 @@ try:
     data_rec = client.recv(1024)
     print(data_rec.decode('utf-8'))
     print('Number of sent words:', count_words, ', number of single error words:', count_error_words, 'number of multiple error words:', count_error_multiple_words,)
-except Exception:
-    print('Something was wrong!')
-finally:
+
+
     client.send('c'.encode('utf-8'))
     client.close()
